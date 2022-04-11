@@ -1,6 +1,7 @@
 package main
 
 import (
+	// Importing necessary packages
 	"bufio"
 	"fmt"
 	"math/rand"
@@ -11,24 +12,28 @@ import (
 )
 
 type Person struct {
+	// Struct for participant entries.
 	name     string
 	given    bool
 	received bool
 }
 
 func initMsg() {
+	// Program initialisation message.
 	fmt.Println("--- Welcome to the Secret Santa Generator! ---")
 }
 
 func pullName() *Person {
+	// Takes a name entry from terminal input.
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Please enter the name of the participant. To exit, type *.")
 	fmt.Print("Enter Name: ")
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(text)
 	if text == "*" {
-		return nil
+		return nil // If * entered, then nil returned as an exit flag.
 	} else {
+		// Name entered is returned as a pointer to a struct, where name field is entered text.
 		return &Person{
 			name:     text,
 			given:    false,
@@ -38,9 +43,10 @@ func pullName() *Person {
 }
 
 func generatePair(personList []*Person) (*Person, *Person) {
-	// two lists: one with received false, one with given false, then randomly generate index for both, then check if names are same
+	// Generates a pair - one gift-giver and one receiver, which are then returned.
 	var notYetGiven, notYetReceived []*Person
 	for i := 0; i < len(personList); i++ {
+		// Two lists created: one with given flag false and one with received flag false (i.e. names not yet paired).
 		if !personList[i].given {
 			notYetGiven = append(notYetGiven, personList[i])
 		}
@@ -50,16 +56,20 @@ func generatePair(personList []*Person) (*Person, *Person) {
 	}
 
 	if len(notYetGiven) == 0 && len(notYetReceived) == 0 {
+		// If both lists are empty then nil exit flags are returned - no more pairing needed.
 		return nil, nil
 	}
 
 	if len(notYetGiven) == 0 || len(notYetReceived) == 0 {
-		panic("not enough givers or receivers - should not happen")
+		// Test - if only one list is empty then panic.
+		panic("Not enough givers or receivers - should not happen!!")
 	}
 
+	// Randomly generates index to generate a giver and a receiver pair out of the unused names.
 	generate := true
 	var newGiver, newReceiver *Person
 	for generate {
+		// Index generated until giver and receiver are not equal (preventing duplicates).
 		randomIndex1 := rand.Intn(len(notYetGiven))
 		newGiver = notYetGiven[randomIndex1]
 		randomIndex2 := rand.Intn(len(notYetReceived))
@@ -72,26 +82,31 @@ func generatePair(personList []*Person) (*Person, *Person) {
 		}
 	}
 
-	// for i := 0; i < len(personList); i++ {
-	// 	if personList[i].name == newGiver.name {
-	// 		fmt.Println("given")
-	// 		personList[i].given = true
-	// 	}
-	// 	if personList[i].name == newReceiver.name {
-	// 		personList[i].received = true
-	// 	}
-	// }
 	return newGiver, newReceiver
-
 }
 
 func clearScreen() {
+	// Function to clear terminal console screen. Currently only works for UNIX systems.
 	c := exec.Command("clear")
 	c.Stdout = os.Stdout
 	c.Run()
 }
 
+func loadingMessage() {
+	// Loading message to allow time for participants.
+	fmt.Print("Loading")
+	for i := 0; i < 10; i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Print(".")
+	}
+	fmt.Println("First generated pairing will display in 5 seconds!")
+	time.Sleep(5 * time.Second)
+	clearScreen()
+}
+
 func main() {
+	// Main body of Secret Santa program.
+
 	initMsg()
 
 	var personList []*Person
@@ -102,7 +117,6 @@ func main() {
 			stopPull = true
 		} else {
 			personList = append(personList, newPerson)
-			// fmt.Println(newPerson.name)
 			fmt.Println("* Saved! *")
 		}
 	}
@@ -117,21 +131,16 @@ func main() {
 			giversList = append(giversList, newGiver)
 			receiversList = append(receiversList, newReceiver)
 		}
-
-		// for _, p := range personList {
-		// 	//fmt.Printf("%v\n", *p)
-		// }
 	}
+
+	loadingMessage()
 
 	for i := 0; i < len(personList); i++ {
-		fmt.Printf("%s, you are giving a gift to %s!\n", giversList[i].name, receiversList[i].name)
-		time.Sleep(3 * time.Second)
+		clearScreen()
+		time.Sleep(5 * time.Second)
+		fmt.Printf("%s... \n", giversList[i].name)
+		fmt.Printf("You are giving a gift to %s!\n", receiversList[i].name)
+		time.Sleep(5 * time.Second)
 		clearScreen()
 	}
-	// var names []string
-	// names = append(names, "mi")
-
-	// fmt.Println("I always keep my guitar in my car now.")
-	// time.Sleep(2 * time.Second)
-	// fmt.Println("It's good for traffic jams.")
 }
