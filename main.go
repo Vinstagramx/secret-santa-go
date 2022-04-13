@@ -1,7 +1,7 @@
 package main
 
 import (
-	// Importing necessary packages
+	// Importing necessary packages.
 	"bufio"
 	"fmt"
 	"math/rand"
@@ -139,6 +139,7 @@ func main() {
 		clearScreen()
 		time.Sleep(5 * time.Second)
 		fmt.Printf("%s... \n", giversList[i].name)
+		time.Sleep(5 * time.Second)
 		fmt.Printf("You are giving a gift to %s!\n", receiversList[i].name)
 		time.Sleep(5 * time.Second)
 		clearScreen()
